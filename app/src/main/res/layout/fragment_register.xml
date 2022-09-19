@@ -147,6 +147,14 @@
             android:text="@string/txt_already_have_account"
             android:textSize="14sp" />
 
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_margin="16dp"
+            android:visibility="gone"
+            android:layout_gravity="center"/>
+
 
     </LinearLayout>
 
