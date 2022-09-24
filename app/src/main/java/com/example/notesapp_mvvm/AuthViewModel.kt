@@ -1,5 +1,7 @@
 package com.example.notesapp_mvvm
 
+import android.text.TextUtils
+import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,5 +31,20 @@ class AuthViewModel @Inject constructor(private val userRepository: UserReposito
         viewModelScope.launch {
             userRepository.loginUser(userRequest)
         }
+    }
+
+    fun validateCredentials(username : String, email : String, password : String, isLogin : Boolean) : Pair<Boolean, String> {
+        var result = Pair(true, "")
+
+        if(TextUtils.isEmpty(username) && !isLogin || TextUtils.isEmpty(password) || TextUtils.isEmpty(email)) {
+            result = Pair(false, "Please provide the credentials")
+        }
+        else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            result = Pair(false, "Please provide valid email")
+        } else if(password.length <= 5){
+            result = Pair(false, "Password length should be > 5")
+        }
+
+        return result
     }
 }

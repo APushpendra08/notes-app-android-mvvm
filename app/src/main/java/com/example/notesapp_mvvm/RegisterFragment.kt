@@ -18,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class registerFragment : Fragment() {
 
 
-    private var _binding : FragmentRegisterBinding? = null
+    private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     private val authViewModel by viewModels<AuthViewModel>()
 
@@ -27,19 +27,7 @@ class registerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
-
-        binding.btnLogin.setOnClickListener {
-//            findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
-            authViewModel.loginUser(UserRequest("labbaasdasddubba@gmail.com", "abc", "labbadubba"))
-        }
-
-        binding.btnSignUp.setOnClickListener {
-//
-            authViewModel.registerUser(UserRequest("labbadubba@gmail.com", "abc", "labbadubba"))
-        }
-
         return binding.root
     }
 
@@ -51,9 +39,43 @@ class registerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.btnLogin.setOnClickListener {
+            findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+        }
+
+        binding.btnSignUp.setOnClickListener {
+            val validationResult = validateUserInput()
+
+            if(validationResult.first) {
+                authViewModel.registerUser(getUserRequest())
+            }
+            else {
+                binding.txtError.text = validationResult.second
+            }
+        }
+
+        // This is the listener for livedata
+        bindObserver()
+    }
+
+    private fun getUserRequest() : UserRequest {
+        val email = binding.txtEmail.text.toString()
+        val password = binding.txtPassword.text.toString()
+        val username = binding.txtUsername.text.toString()
+
+        return UserRequest(email, password, username)
+    }
+
+    private fun validateUserInput(): Pair<Boolean, String> {
+        val userRequest = getUserRequest()
+        return authViewModel.validateCredentials(userRequest.username, userRequest.email, userRequest.password, false)
+    }
+
+    private fun bindObserver() {
         authViewModel.userResponseLiveData.observe(viewLifecycleOwner, Observer {
             binding.progressBar.isVisible = false
-            when(it){
+            when (it) {
                 is NetworkResult.Success -> {
                     // Token
                     findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
